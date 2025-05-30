@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMLoader - Лучший лоадер для Minecraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .download-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+            }
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Стиль для Cloudflare Turnstile */
+        .cf-turnstile {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        /* Защитный экран перед загрузкой */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111827;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #preloader-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #10b981;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Preloader с капчей -->
+    <div id="preloader">
+        <div id="preloader-spinner"></div>
+        <h2 class="text-2xl font-bold mb-4">Пожалуйста, подтвердите что вы не робот</h2>
+        <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_SITE_KEY" data-callback="onTurnstileSuccess"></div>
+        <p class="text-gray-400 mt-4">После проверки сайт загрузится автоматически</p>
+    </div>
+
+    <!-- Основной контент (изначально скрыт) -->
+    <div id="main-content" style="display: none;">
+        <!-- Видео фон -->
+        <div class="video-background">
+            <video autoplay muted loop>
+                <source src="background.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видеофон.
+            </video>
+            <div class="overlay"></div>
+        </div>
+
+        <!-- Главный контент -->
+        <div class="container mx-auto px-4 py-12 relative z-10">
+            <!-- Остальное содержимое вашего сайта остается без изменений -->
+            <!-- ... -->
+
+            <!-- Футер -->
+            <footer class="border-t border-gray-700 pt-8 pb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <i class="fas fa-cube text-2xl text-green-400 mr-2"></i>
+                        <span class="text-xl font-bold">DMLoader</span>
+                    </div>
+                    <div class="flex space-x-6 mb-4 md:mb-0">
+                        <a href="https://discord.com/invite/9QTzR8uwRP" target="_blank" class="text-2xl hover:text-green-400"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/DMLoader" target="_blank" class="text-2xl hover:text-green-400"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.youtube.com/@DMLoader" target="_blank" class="text-2xl hover:text-green-400"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    <div class="text-sm opacity-70">
+                        © 2023 DMLoader Team. Все права защищены.
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Обработка Cloudflare Turnstile
+        function onTurnstileSuccess(token) {
+            // Скрываем прелоадер и показываем основной контент
+            document.getElementById('preloader').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // Сохраняем в localStorage что пользователь прошел проверку
+            localStorage.setItem('cf_verified', 'true');
+        }
+
+        // Проверяем при загрузке, прошел ли пользователь уже проверку
+        document.addEventListener('DOMContentLoaded', function() {
+            if(localStorage.getItem('cf_verified') === 'true') {
+                document.getElementById('preloader').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }
+        });
+
+        // Остальной JavaScript код остается без изменений
+        // Анимация FAQ
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const icon = question.querySelector('i');
+                
+                answer.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+        
+        // Плавная прокрутка для якорных ссылок
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Мобильное меню (можно доработать)
+        const mobileMenuBtn = document.querySelector('button.md\\:hidden');
+        mobileMenuBtn.addEventListener('click', () => {
+            alert('Мобильное меню будет реализовано в следующих версиях');
+        });
+
+        // Отправка формы в Telegram бота
+        document.getElementById('contact-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const submitText = form.querySelector('.submit-text');
+            const spinner = form.querySelector('.loading-spinner');
+            const successMsg = document.getElementById('form-success');
+            const errorMsg = document.getElementById('form-error');
+            
+            // Показать спиннер загрузки
+            submitText.style.display = 'none';
+            spinner.style.display = 'block';
+            successMsg.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+            
+            // Собрать данные формы
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const message = document.getElementById('contact-message').value;
+            
+            // Токен бота и ID чата (замените на свои)
+            const botToken = 'YOUR_BOT_TOKEN';
+            const chatId = 'YOUR_CHAT_ID';
+            
+            // Форматирование сообщения
+            const text = `📩 Новое сообщение с сайта DMLoader:\n\n` +
+                         `👤 Имя: ${name}\n` +
+                         `📧 Email: ${email}\n` +
+                         `✉️ Сообщение:\n${message}`;
+            
+            // Отправка через Telegram Bot API
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: 'HTML'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    // Успешная отправка
+                    successMsg.classList.remove('hidden');
+                    form.reset();
+                } else {
+                    // Ошибка отправки
+                    console.error('Ошибка отправки:', data);
+                    errorMsg.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                errorMsg.classList.remove('hidden');
+            })
+            .finally(() => {
+                // Скрыть спиннер загрузки
+                submitText.style.display = 'inline';
+                spinner.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
